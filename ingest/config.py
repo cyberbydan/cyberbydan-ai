@@ -11,10 +11,17 @@ CHROMA_DIR = PROJECT_ROOT / "chroma_db"
 
 # Supported file types
 SUPPORTED_EXTENSIONS = {
+    ".md",
     ".txt",
     ".pdf",
     ".docx",
-    ".pptx",
-    ".md",
-    ".csv",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".ini",
+    ".py",
+    ".ps1",
+    ".sh",
+    ".log"
 }
