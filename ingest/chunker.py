@@ -177,16 +177,12 @@ def chunk_document(document: Document) -> Document:
         for text in text_chunks:
 
             chunk = Chunk(
+                id=f"{document.stem}::{chunk_number:04}",
                 document=document,
                 chunk_number=chunk_number,
                 section=section_name,
                 content=text,
-                metadata={
-                    "source": document.source,
-                    "filename": document.path.name,
-                    "extension": document.extension,
-                    "section": section_name,
-                },
+                metadata=section.metadata,
             )
 
             # Attach the chunk to the document.
