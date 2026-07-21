@@ -1,0 +1,11 @@
+Risk ID,Description,Category,Likelihood (1-5),Impact (1-5),Risk Score,Existing Control,Residual Risk,Action
+R-01,SSH service exposed with no IP restriction,Access Control,3,5,15,openssh-server installed but unrestricted,High,Restrict SSH to localhost only in sshd_config
+R-02,Docker daemon running as root,Privilege Management,3,5,15,None,High,Configure rootless Docker
+R-03,Grafana accessible with default credentials,Access Control,4,4,16,Password set to homelab123,High,Change to a strong unique password
+R-04,No offsite backup — all backups local only,Business Continuity,4,4,16,None yet,High,Set up Restic with Backblaze B2
+R-05,Log retention period not defined,Audit & Compliance,3,3,9,Loki collecting logs,Medium,Define and configure retention policy in Loki
+R-06,No MFA on any homelab service,Access Control,3,4,12,Password authentication only,Medium,Add MFA via Authentik in future sprint
+R-07,Sudo access not regularly reviewed,Privilege Management,2,4,8,Sudo events logged in Grafana,Low,Schedule monthly user access review
+R-08,Containers have no resource limits,Operations,2,3,6,Docker default limits,Low,Add CPU and memory limits in docker-compose
+R-09,No alerting on sudo events,Monitoring,3,3,9,Events visible in Grafana but no alert,Medium,Add Grafana alert rule for sudo activity
+R-10,Uptime Kuma data not backed up,Business Continuity,2,3,6,Uptime Kuma running in Docker volume,Low,Include in Restic backup scope
