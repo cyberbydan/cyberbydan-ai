@@ -24,7 +24,7 @@ Document with content
 """
 
 from pathlib import Path
-from models import Document
+from ai.core.models import Document
 
 def read_document(document: Document) -> Document:
     """

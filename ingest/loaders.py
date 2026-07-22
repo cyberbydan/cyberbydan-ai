@@ -27,8 +27,8 @@ Content Loader
 
 from pathlib import Path
 
-from config import KNOWLEDGE_DIR, SUPPORTED_EXTENSIONS
-from models import Document
+from core.config import KNOWLEDGE_DIR, SUPPORTED_EXTENSIONS
+from core.models import Document
 
 def discover_documents():
     """

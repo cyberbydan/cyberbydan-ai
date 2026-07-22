@@ -1,4 +1,4 @@
-from embedder import create_embedding
+from ai.core.embedder import create_embedding
 
 vector = create_embedding(
     "Jellyfin streams media from your server to any device, anywhere, for free."

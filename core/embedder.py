@@ -19,7 +19,7 @@ If we ever change embedding models (for example from nomic-embed-text to BGE-M3)
 
 from ollama import Client
 
-from config import (
+from core.config import (
     EMBEDDING_MODEL,
     OLLAMA_URL,
 )

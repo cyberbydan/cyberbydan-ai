@@ -74,4 +74,4 @@ CHAT_MODEL = "deepseek-r1:14b"
 
 CHROMA_HOST = "localhost"
 CHROMA_PORT = 8000
-COLLECTION_NAME = "cyberbydan-knowledge"
+CHROMA_COLLECTION = "cyberbydan-knowledge"

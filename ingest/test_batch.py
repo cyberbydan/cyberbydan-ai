@@ -1,4 +1,4 @@
-from embedder import create_embeddings
+from ai.core.embedder import create_embeddings
 
 texts = [
     "Jellyfin streams media.",

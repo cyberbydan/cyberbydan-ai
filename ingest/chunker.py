@@ -84,7 +84,7 @@ from langchain_text_splitters import(
     RecursiveCharacterTextSplitter,
 )
 
-from models import Document, Chunk
+from ai.core.models import Document, Chunk
 
 
 #---------------------------------------------------------------------
@@ -101,12 +101,11 @@ HEADERS_TO_SPLIT_ON = [
     ("######", "Header 6"),
 ]
 
-# Maximum number of characters in each chunk.
-CHUNK_SIZE = 800
-
-# Number of characters shared between neighbouring chunks.
-# This helps preserve context across chunk boundaries.
-CHUNK_OVERLAP = 150
+from core.config import (
+    CHUNK_SIZE,
+    CHUNK_OVERLAP,
+    HEADERS_TO_SPLIT_ON,
+)
 
 #---------------------------------------------------------------------
 # LangChain Splitters

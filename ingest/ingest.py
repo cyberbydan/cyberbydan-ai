@@ -20,10 +20,10 @@ Chunk Documents
 Store in ChromaDB
 """
 
-from loaders import discover_documents
-from reader import read_document
-from chunker import chunk_document
-from vectorstore import store_chunks, count
+from ingest.loaders import discover_documents
+from ingest.reader import read_document
+from ingest.chunker import chunk_document
+from ai.core.vectorstore import store_chunks, count
 # ============================================================
 
 def main():

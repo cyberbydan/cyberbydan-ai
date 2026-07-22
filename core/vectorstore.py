@@ -35,14 +35,14 @@ Its only responsibility is vector storage and retrieval.
 
 from chromadb import HttpClient
 
-from config import (
+from core.config import (
     CHROMA_HOST,
     CHROMA_PORT,
-    COLLECTION_NAME,
+    CHROMA_COLLECTION,
 )
 
-from embedder import create_embedding, create_embeddings
-from models import Chunk
+from ai.core.embedder import create_embedding, create_embeddings
+from ai.core.models import Chunk
 
 
 # ============================================================
@@ -59,7 +59,7 @@ client = HttpClient(
 # ============================================================
 
 collection = client.get_or_create_collection(
-    name=COLLECTION_NAME
+    name=CHROMA_COLLECTION
 )
 
 
@@ -200,10 +200,10 @@ def clear() -> None:
 
     global collection
 
-    client.delete_collection(COLLECTION_NAME)
+    client.delete_collection(CHROMA_COLLECTION)
 
     collection = client.get_or_create_collection(
-        name=COLLECTION_NAME
+        name=CHROMA_COLLECTION
     )
 
     print("Collection cleared.")
