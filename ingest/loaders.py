@@ -3,88 +3,75 @@ loaders.py
 
 Purpose
 -------
-This module is responsible for discovering documents inside the
-knowledge directory.
+This module discovers documents from one or more configured
+knowledge sources.
 
-It DOES NOT read file contents.
+It does NOT read document contents.
 
-Its only responsibility is to locate supported files and convert
-them into Document objects.
+Its only responsibility is to locate supported files and
+convert them into Document objects.
 
 Pipeline
 
-Knowledge Folder
+Knowledge Sources
         │
         ▼
-Discover Files      <-- This module
+Discover Files
         │
         ▼
 Document Objects
-        │
-        ▼
-Content Loader
 """
 
-from pathlib import Path
-
-from core.config import KNOWLEDGE_DIR, SUPPORTED_EXTENSIONS
+from core.config import KNOWLEDGE_SOURCES, SUPPORTED_EXTENSIONS
 from core.models import Document
+
 
 def discover_documents():
     """
-       Search the knowledge directory for supported files.
+    Search every enabled knowledge source for supported files.
 
     Returns
     -------
     list[Document]
-    Each discovered file becomes a Document object.
-
-    Example
-
-    README.md
-
-        ↓
-
-    Document(
-        path=...,
-        source="homelab",
-        extension=".md"
-    )"""
+        Each discovered file becomes a Document object.
+    """
 
     documents = []
 
-    # Search every folder inside the knowledge directory
-    for path in KNOWLEDGE_DIR.rglob("*"):
+    # --------------------------------------------------------
+    # Search every enabled knowledge source
+    # --------------------------------------------------------
 
-         # Skip anything that isn't a supported file.
-        if not path.is_file():
+    for source in KNOWLEDGE_SOURCES:
+
+        if not source.get("enabled", True):
             continue
 
-        if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+        source_name = source["name"]
+        source_path = source["path"]
+
+        # Skip sources that do not exist
+        if not source_path.exists():
+            print(f"Warning: Knowledge source not found: {source_path}")
             continue
 
-        # Determine which knowledge collection
-        # the document belongs to.
-        #
-        # Example:
-        #
-        # knowledge/
-        #     homelab/
-        #         README.md
-        #
-        # source = "homelab"
-        relative_path = path.relative_to(KNOWLEDGE_DIR)
+        # Search every file recursively
+        for path in source_path.rglob("*"):
 
-        source = relative_path.parts[0]
+            # Skip folders
+            if not path.is_file():
+                continue
 
-        # Create a Document object.
-        document = Document(
-            path=path,
-            source=source,
-            extension=path.suffix.lower()
-        )
+            # Skip unsupported file types
+            if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+                continue
 
-        documents.append(document)
+            document = Document(
+                path=path,
+                source=source_name,
+                extension=path.suffix.lower(),
+            )
+
+            documents.append(document)
 
     return sorted(documents, key=lambda doc: str(doc.path))
-

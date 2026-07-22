@@ -23,16 +23,29 @@ Store in ChromaDB
 from ingest.loaders import discover_documents
 from ingest.reader import read_document
 from ingest.chunker import chunk_document
-from ai.core.vectorstore import store_chunks, count
+from core.config import KNOWLEDGE_SOURCES
+from core.vectorstore import (store_chunks, count, clear)
+
 # ============================================================
 
 def main():
     """
     Runs the complete ingestion pipeline.
     """
+
+    print("\nKnowledge Sources")
+    print("=" * 60)
+
+    for source in KNOWLEDGE_SOURCES:
+        status = "✅" if source.get("enabled", True) else "❌"
+
+        print(f"{status} {source['name']}")
+        print(f"    {source['path']}")
+
+
     documents = discover_documents()
 
-    print(f"\nFound {len(documents)} document(s):\n")
+    print(f"Found {len(documents)} document(s).\n")
 
     # --------------------------------------------------------
     # This list will eventually contain EVERY chunk from
@@ -75,9 +88,19 @@ def main():
     # --------------------------------------------------------
     # Store all chunks in ChromaDB
     # --------------------------------------------------------
-    print("\nStoring embeddings...")
+    print("\nClearing existing vector database...")
+    clear()
+
+    print("\n" + "=" * 60)
+    print("Generating embeddings and storing in ChromaDB...")
+    print("=" * 60)
+
     store_chunks(all_chunks)
-    print(f"\nVector database now contains {count()} chunks.\n")
+
+    print("\n" + "=" * 60)
+    print("Ingestion complete.")
+    print(f"Vector database now contains {count()} chunks.")
+    print("=" * 60 + "\n")
 
 if __name__ == "__main__":
     main()

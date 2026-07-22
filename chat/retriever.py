@@ -35,7 +35,6 @@ from core.config import (
 )
 
 
-
 # ============================================================
 # Connect to ChromaDB
 # ============================================================
@@ -45,14 +44,12 @@ client = HttpClient(
     port=CHROMA_PORT,
 )
 
-collection = client.get_collection(CHROMA_COLLECTION)
-
 
 # ============================================================
 # Retrieve Similar Chunks
 # ============================================================
 
-def retrieve(question: str, n_results: int = 5) -> list[dict]:
+def retrieve(question: str, n_results: int = 10) -> list[dict]:
     """
     Search the vector database for chunks relevant to the question.
 
@@ -62,14 +59,12 @@ def retrieve(question: str, n_results: int = 5) -> list[dict]:
         The user's natural language question.
 
     n_results
-        Maximum number of chunks to return.
+        Maximum number of chunks to retrieve before reranking.
 
     Returns
     -------
     list[dict]
-
-        Each dictionary contains information about one retrieved
-        chunk.
+        Retrieved chunks ordered by semantic similarity.
     """
 
     # --------------------------------------------------------
@@ -81,6 +76,18 @@ def retrieve(question: str, n_results: int = 5) -> list[dict]:
 
     # --------------------------------------------------------
     # Step 2
+    # Get the latest collection.
+    #
+    # Using get_or_create_collection prevents stale collection
+    # handles after rebuilding the vector database.
+    # --------------------------------------------------------
+
+    collection = client.get_or_create_collection(
+        name=CHROMA_COLLECTION
+    )
+
+    # --------------------------------------------------------
+    # Step 3
     # Search ChromaDB.
     # --------------------------------------------------------
 
@@ -90,7 +97,7 @@ def retrieve(question: str, n_results: int = 5) -> list[dict]:
     )
 
     # --------------------------------------------------------
-    # Step 3
+    # Step 4
     # Convert Chroma's response into a cleaner Python object.
     # --------------------------------------------------------
 
@@ -115,7 +122,13 @@ def retrieve(question: str, n_results: int = 5) -> list[dict]:
                 "section": metadata.get("section", "Unknown"),
                 "source": metadata.get("source", "Unknown"),
                 "content": document,
-                "distance": distance,
+
+                # Lower distance means a better semantic match.
+                "distance": round(distance, 4),
+
+                # Higher similarity means a better match.
+                "similarity": round(1 - distance, 4),
+
                 "metadata": metadata,
             }
         )

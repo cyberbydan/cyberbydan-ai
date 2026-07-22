@@ -84,7 +84,7 @@ from langchain_text_splitters import(
     RecursiveCharacterTextSplitter,
 )
 
-from ai.core.models import Document, Chunk
+from core.models import Document, Chunk
 
 
 #---------------------------------------------------------------------

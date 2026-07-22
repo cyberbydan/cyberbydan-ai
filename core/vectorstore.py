@@ -41,8 +41,8 @@ from core.config import (
     CHROMA_COLLECTION,
 )
 
-from ai.core.embedder import create_embedding, create_embeddings
-from ai.core.models import Chunk
+from core.embedder import create_embedding, create_embeddings
+from core.models import Chunk
 
 
 # ============================================================

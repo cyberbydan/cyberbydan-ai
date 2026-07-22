@@ -19,8 +19,52 @@ from pathlib import Path
 
 # Project root directory (C:\homelab\ai)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-# Knowledge directory
-KNOWLEDGE_DIR = PROJECT_ROOT / "knowledge"
+
+# ===========================================================
+# Knowledge Sources
+# ===========================================================
+
+# Every source listed here will be indexed into ChromaDB.
+#
+# CyberByDan AI consumes documentation but does not own it.
+# The Homelab repository remains the single source of truth.
+#
+# Additional knowledge collections can be added here without
+# changing the ingestion pipeline.
+
+KNOWLEDGE_SOURCES = [
+    {
+        "name": "Homelab",
+        "path": PROJECT_ROOT.parent / "docs",
+        "enabled": True,
+    }
+]
+
+# ===========================================================
+# Retrieval Priorities
+# ===========================================================
+
+DOCUMENT_PRIORITIES = {
+
+    # Core architecture
+    "homelab_architecture_v5.md": 100,
+    "state-inventory v2.md": 95,
+    "recovery-playbooks.md": 90,
+    "superbot-architecture.md": 85,
+
+    # Historical documentation
+    "lessons-learned.md": 70,
+
+    # Session history
+    "session-06.md": 40,
+    "session-05.md": 35,
+    "session-5-plan.md": 20,
+}
+
+# Maximum number of retrieved chunks allowed
+# from the same document.
+MAX_CHUNKS_PER_DOCUMENT = 2
+
 # Chroma Persistence directory
 CHROMA_DIR = PROJECT_ROOT / "chroma_db"
 

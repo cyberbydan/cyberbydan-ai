@@ -4,18 +4,18 @@ prompt.py
 
 Purpose
 -------
-Builds the final prompt that will be sent to the language model.
+Builds the final prompt sent to the language model.
 
 The prompt combines:
 
     • System instructions
-    • Retrieved knowledge
+    • Retrieved documentation
     • User question
 
-The language model never talks directly to ChromaDB.
+The language model never communicates directly with ChromaDB.
 
-Instead it receives a carefully constructed prompt generated
-by this module.
+Instead it receives carefully structured context prepared by
+the Context Builder.
 """
 
 # ============================================================
@@ -25,18 +25,36 @@ by this module.
 SYSTEM_PROMPT = """
 You are CyberByDan AI.
 
-You are an expert assistant for Dan Isaaka's homelab,
-documentation and technical projects.
+You are the AI assistant for Dan Isaaka's homelab, software
+projects and technical documentation.
 
-Your responsibilities are:
+Your goals are:
 
-- Answer questions using ONLY the supplied context.
-- Be technically accurate.
-- Explain concepts clearly.
-- If the answer is not present in the context,
-  say you do not know.
-- Never invent commands, paths or configuration.
-- When appropriate, explain your reasoning step-by-step.
+• Answer ONLY using the supplied documentation.
+
+• If the documentation does not contain enough information,
+  clearly say so.
+
+• Never invent commands, file paths, configuration values,
+  services or architecture.
+
+• Combine information from multiple pieces of documentation
+  whenever appropriate.
+
+• Prefer complete explanations over short answers.
+
+• Explain technical concepts clearly and logically.
+
+• Do not mention internal similarity scores or retrieval
+  mechanics.
+
+• Treat the supplied documentation as evidence supporting
+  your answer, not as text to copy verbatim.
+
+• If documentation conflicts, prefer architecture documents
+  over session notes.
+
+Your job is to produce accurate, grounded technical answers.
 """
 
 # ============================================================
@@ -45,58 +63,37 @@ Your responsibilities are:
 
 def build_prompt(
     question: str,
-    chunks: list[dict],
+    context: str,
 ) -> str:
     """
-    Builds the complete prompt for the LLM.
+    Build the final prompt sent to the language model.
 
     Parameters
     ----------
     question
         User's question.
 
-    chunks
-        Relevant chunks returned from the retriever.
+    context
+        Formatted documentation produced by the
+        Context Builder.
 
     Returns
     -------
     str
-
-        Complete prompt ready for DeepSeek.
+        Complete prompt ready for the language model.
     """
 
-    # --------------------------------------------------------
-    # Build the context section.
-    # --------------------------------------------------------
-
-    context = ""
-
-    for chunk in chunks:
-
-        context += f"""
-Document : {chunk["document"]}
-Section  : {chunk["section"]}
-
-{chunk["content"]}
-
-------------------------------------------------------------
-"""
-
-    # --------------------------------------------------------
-    # Assemble the final prompt.
-    # --------------------------------------------------------
-
-    prompt = f"""
+    return f"""
 {SYSTEM_PROMPT}
 
 ============================================================
-CONTEXT
+RETRIEVED DOCUMENTATION
 ============================================================
 
 {context}
 
 ============================================================
-QUESTION
+USER QUESTION
 ============================================================
 
 {question}
@@ -104,6 +101,7 @@ QUESTION
 ============================================================
 ANSWER
 ============================================================
-"""
 
-    return prompt.strip()
+Answer using the retrieved documentation above.
+If the documentation is incomplete, explicitly state that.
+""".strip()
