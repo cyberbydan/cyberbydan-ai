@@ -47,7 +47,7 @@ client = Client(host=OLLAMA_URL)
 # Ask the Language Model
 # ============================================================
 
-def ask_llm(prompt: str) -> str:
+def generate(prompt: str) -> str:
     """
     Sends a prompt to the language model and returns its reply.
 
