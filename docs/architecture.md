@@ -1,136 +1,355 @@
 # CyberByDan AI Architecture
 
-## Vision
-
-CyberByDan AI separates the responsibilities of document ingestion, retrieval, prompt engineering and language model inference into independent modules.
-
-Each component performs one responsibility.
+> System architecture for the CyberByDan AI Platform.
 
 ---
 
-## High-Level Architecture
+# Overview
 
+CyberByDan AI is a self-hosted Retrieval-Augmented Generation (RAG) platform designed to provide a single OpenAI-compatible interface for local AI applications.
+
+The platform combines local language models, a vector database, and custom retrieval logic behind a persistent REST API.
+
+---
+
+# High-Level Architecture
+
+```text
+                        Clients
+────────────────────────────────────────────────────
+
+Open WebUI
+Continue
+n8n
+Telegram Bot (Future)
+WhatsApp Bot (Future)
+Custom Applications
+
+                    │
+                    ▼
+
+             CyberByDan AI API
+          (FastAPI / Windows Service)
+
+                    │
+      ┌─────────────┴─────────────┐
+      │                           │
+      ▼                           ▼
+
+ Retriever                 Ollama API
+      │                           │
+      ▼                           ▼
+
+ ChromaDB                Local LLMs
+
+      │
+
+ Stored Knowledge
 ```
-Knowledge Sources
-        │
-        ▼
-Discover Documents
-        │
-        ▼
-Read Documents
-        │
-        ▼
-Chunk Documents
-        │
-        ▼
-Generate Embeddings
-        │
-        ▼
-Store in ChromaDB
-        │
-        ▼
-Retrieve Relevant Chunks
-        │
-        ▼
-Context Builder
-        │
-        ▼
-Prompt Builder
-        │
-        ▼
-Language Model
-        │
-        ▼
+
+---
+
+# Platform Components
+
+## CyberByDan AI API
+
+Responsibilities
+
+* OpenAI-compatible REST API
+* Request validation
+* Context generation
+* Prompt construction
+* Response formatting
+
+Runs as
+
+* Windows Service
+* Managed by NSSM
+* Automatic startup
+
+---
+
+## Ollama
+
+Responsibilities
+
+* Local model inference
+* Embedding generation
+
+Current Models
+
+* CyberByDan-AI
+* deepseek-r1:14b
+* qwen2.5-coder:14b
+* qwen2.5-coder
+* mistral
+* llama3.2
+* nomic-embed-text
+
+---
+
+## ChromaDB
+
+Responsibilities
+
+* Vector storage
+* Similarity search
+* Document retrieval
+
+Deployment
+
+* Podman Compose
+* Dedicated AI stack
+
+---
+
+## Retriever
+
+Responsibilities
+
+* Query embedding
+* Similarity search
+* Context retrieval
+* Chunk selection
+
+Future
+
+* Cross-encoder reranking
+* Hybrid search
+* Metadata filtering
+
+---
+
+# Request Flow
+
+```text
+User Request
+
+      │
+
+      ▼
+
 OpenAI API
-        │
-        ▼
+
+      │
+
+      ▼
+
+Retriever
+
+      │
+
+      ▼
+
+ChromaDB
+
+      │
+
+      ▼
+
+Relevant Chunks
+
+      │
+
+      ▼
+
+Prompt Builder
+
+      │
+
+      ▼
+
+DeepSeek
+
+      │
+
+      ▼
+
+OpenAI-Compatible Response
+```
+
+---
+
+# Startup Architecture
+
+```text
+Windows Boot
+
+      │
+
+      ▼
+
+Podman Machine
+
+      │
+
+      ▼
+
+Media Compose Stack
+
+      │
+
+      ▼
+
+AI Compose Stack
+
+      │
+
+      ▼
+
+ChromaDB
+
+      │
+
+      ▼
+
+Ollama
+
+      │
+
+      ▼
+
+CyberByDanAI Windows Service
+
+      │
+
+      ▼
+
 Clients
 ```
 
 ---
 
-## Components
+# Directory Structure
 
-### Knowledge Sources
+```text
+C:\homelab\ai
 
-Defines every documentation source available to the AI.
-
-Configured in
-
+├── api/
+├── chat/
+├── chromadb/
+├── ingest/
+├── models/
+├── prompts/
+├── vectorstore/
+├── docs/
+├── scripts/
+└── tests/
 ```
-core/config.py
+
+---
+
+# Infrastructure
+
+## Windows
+
+* CyberByDanAI Service
+* NSSM
+* PowerShell Toolkit
+
+---
+
+## Podman
+
+AI Stack
+
+* ChromaDB
+
+Media Stack
+
+* Sonarr
+* Radarr
+* Lidarr
+* Bazarr
+* Prowlarr
+* Jellyseerr
+* qBittorrent
+* FlareSolverr
+* Navidrome
+
+---
+
+# Management Toolkit
+
+PowerShell scripts provide lifecycle management.
+
+Available commands
+
+* ai-start.ps1
+* ai-stop.ps1
+* ai-restart.ps1
+* ai-status.ps1
+* ai-health.ps1
+* ai-update.ps1
+
+Shared Library
+
+* ai-common.ps1
+
+---
+
+# Logging
+
+Application
+
+```text
+C:\homelab\logs\api.log
+```
+
+Errors
+
+```text
+C:\homelab\logs\api-error.log
 ```
 
 ---
 
-### Ingestion
+# Design Principles
 
-Responsible for
-
-- discovery
-- reading
-- chunking
-- embeddings
-
----
-
-### ChromaDB
-
-Stores semantic vectors.
-
-Responsibilities
-
-- storage
-
-- retrieval
-
-- similarity search
+* Local-first AI
+* OpenAI compatibility
+* Modular components
+* Service-oriented architecture
+* Separation of infrastructure and application logic
+* Automation-friendly operations
+* Persistent services
+* Reproducible deployments
 
 ---
 
-### Retriever
+# Current Architecture Status
 
-Performs semantic search.
+Implemented
 
-Returns the most relevant chunks.
+* OpenAI-compatible API
+* Windows Service hosting
+* Automatic startup
+* Podman-managed ChromaDB
+* Ollama integration
+* Retrieval-Augmented Generation
+* PowerShell management toolkit
+* Health monitoring
+* Structured logging
 
----
+Planned
 
-### Context Builder
-
-Converts retrieved chunks into structured context.
-
----
-
-### Prompt Builder
-
-Combines
-
-- system instructions
-- context
-- user question
-
-into one prompt.
-
----
-
-### Language Model
-
-DeepSeek-R1 running through Ollama.
+* Cross-encoder reranker
+* Conversation memory
+* Agent framework
+* MCP integration
+* Multi-user authentication
+* Observability dashboards
+* Distributed inference
+* Multi-vector retrieval
 
 ---
 
-### OpenAI API
+# Operational Status
 
-Exposes the AI using the OpenAI Chat Completion API.
+The CyberByDan AI Platform is now capable of:
 
----
-
-## Future Architecture
-
-- Re-ranking
-- Memory
-- Agent framework
-- Tool calling
-- Infrastructure awareness
-- Autonomous planning
+* Surviving Windows reboot
+* Automatically restoring infrastructure
+* Automatically restoring AI services
+* Serving OpenAI-compatible requests without manual intervention
+* Providing a stable foundation for future AI capabilities

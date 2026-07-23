@@ -6,23 +6,6 @@ Purpose
 -------
 Searches the ChromaDB vector database for the document chunks
 most relevant to a user's question.
-
-The retriever DOES NOT answer questions.
-
-Its only responsibility is to:
-
-    Question
-        │
-        ▼
-    Create embedding
-        │
-        ▼
-    Search ChromaDB
-        │
-        ▼
-    Return the best matching chunks
-
-Those chunks will later be used by the prompt builder.
 """
 
 from chromadb import HttpClient
@@ -34,61 +17,60 @@ from core.config import (
     CHROMA_PORT,
 )
 
-
 # ============================================================
-# Connect to ChromaDB
+# Lazy Chroma Connection
 # ============================================================
 
-client = HttpClient(
-    host=CHROMA_HOST,
-    port=CHROMA_PORT,
-)
+_client = None
+_collection = None
+
+
+def get_collection():
+    """
+    Lazily connect to ChromaDB.
+
+    The connection is created only once, on the first query,
+    instead of during module import.
+    """
+
+    global _client
+    global _collection
+
+    if _collection is None:
+
+        _client = HttpClient(
+            host=CHROMA_HOST,
+            port=CHROMA_PORT,
+        )
+
+        _collection = _client.get_collection(
+            CHROMA_COLLECTION
+        )
+
+    return _collection
 
 
 # ============================================================
 # Retrieve Similar Chunks
 # ============================================================
 
-def retrieve(question: str, n_results: int = 10) -> list[dict]:
+def retrieve(question: str, n_results: int = 5) -> list[dict]:
     """
     Search the vector database for chunks relevant to the question.
-
-    Parameters
-    ----------
-    question
-        The user's natural language question.
-
-    n_results
-        Maximum number of chunks to retrieve before reranking.
-
-    Returns
-    -------
-    list[dict]
-        Retrieved chunks ordered by semantic similarity.
     """
+
+    collection = get_collection()
 
     # --------------------------------------------------------
     # Step 1
-    # Convert the question into an embedding.
+    # Create query embedding.
     # --------------------------------------------------------
 
     query_embedding = create_embedding(question)
 
     # --------------------------------------------------------
     # Step 2
-    # Get the latest collection.
-    #
-    # Using get_or_create_collection prevents stale collection
-    # handles after rebuilding the vector database.
-    # --------------------------------------------------------
-
-    collection = client.get_or_create_collection(
-        name=CHROMA_COLLECTION
-    )
-
-    # --------------------------------------------------------
-    # Step 3
-    # Search ChromaDB.
+    # Query Chroma.
     # --------------------------------------------------------
 
     results = collection.query(
@@ -97,8 +79,8 @@ def retrieve(question: str, n_results: int = 10) -> list[dict]:
     )
 
     # --------------------------------------------------------
-    # Step 4
-    # Convert Chroma's response into a cleaner Python object.
+    # Step 3
+    # Convert results.
     # --------------------------------------------------------
 
     retrieved_chunks = []
@@ -122,13 +104,8 @@ def retrieve(question: str, n_results: int = 10) -> list[dict]:
                 "section": metadata.get("section", "Unknown"),
                 "source": metadata.get("source", "Unknown"),
                 "content": document,
-
-                # Lower distance means a better semantic match.
                 "distance": round(distance, 4),
-
-                # Higher similarity means a better match.
                 "similarity": round(1 - distance, 4),
-
                 "metadata": metadata,
             }
         )
