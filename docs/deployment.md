@@ -1,240 +1,160 @@
-# CyberByDan AI API
+# CyberByDan AI Deployment
 
-## Overview
-
-The CyberByDan AI API provides an OpenAI-compatible REST interface for interacting with the local AI platform. It acts as a compatibility layer between external applications and the local inference engine powered by Ollama and ChromaDB.
-
-The API is designed to be a permanent infrastructure service rather than a development-only application.
+> Deployment guide for a fresh CyberByDan AI installation.
 
 ---
 
-# Architecture
+# Overview
 
-```text
-Client
-    │
-    ▼
-CyberByDan AI API
-    │
-    ├── Ollama
-    │      └── Local LLMs
-    │
-    └── ChromaDB
-           └── Retrieval-Augmented Generation (RAG)
+This document describes how to deploy the CyberByDan AI platform on a new Windows machine.
+
+The completed deployment consists of:
+
+* Ollama
+* ChromaDB
+* CyberByDanAI Windows Service
+* PowerShell management toolkit
+
+---
+
+# Prerequisites
+
+Required software
+
+* Git
+* Python 3.11+
+* Ollama
+* Podman Desktop
+* NSSM
+* PowerShell 7 (recommended)
+
+---
+
+# Repository
+
+Clone the repository.
+
+```powershell
+git clone <repository-url>
 ```
 
 ---
 
-# Service Information
+# Python Environment
 
-**Service Name**
+Create the virtual environment.
+
+```powershell
+python -m venv .venv
+```
+
+Activate it.
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Install dependencies.
+
+```powershell
+pip install -r requirements.txt
+```
+
+---
+
+# Ollama
+
+Install the required models.
+
+```powershell
+ollama pull deepseek-r1:14b
+ollama pull nomic-embed-text
+```
+
+Verify installation.
+
+```powershell
+ollama list
+```
+
+---
+
+# ChromaDB
+
+Deploy the AI stack.
+
+```powershell
+podman-compose -f C:\docker\ai\docker-compose.yml up -d
+```
+
+Verify.
+
+```powershell
+podman ps
+```
+
+---
+
+# Windows Service
+
+Install the API service using NSSM.
+
+Service
 
 ```text
 CyberByDanAI
 ```
 
-**Service Manager**
-
-```text
-NSSM (Non-Sucking Service Manager)
-```
-
-**Startup Type**
+Startup
 
 ```text
 Automatic
 ```
 
-The API starts automatically during Windows boot and remains available without requiring an active PowerShell or VS Code session.
-
----
-
-# Endpoints
-
-## Base URL
+Logs
 
 ```text
-http://127.0.0.1:8001
+C:\homelab\logs
 ```
 
 ---
 
-## OpenAI Compatible API
+# Validation
 
-### List Models
+Run the health check.
 
-```http
-GET /v1/models
+```powershell
+.\scripts\ai-health.ps1
 ```
 
-Returns all locally available chat and embedding models.
-
----
-
-### Chat Completions
-
-```http
-POST /v1/chat/completions
-```
-
-OpenAI-compatible endpoint for conversational requests.
-
-Supported by:
-
-* Open WebUI
-* n8n
-* Telegram Bots
-* WhatsApp Bots
-* Custom Applications
-* Future CyberByDan Clients
-
----
-
-## Health Endpoints
-
-### API Health
-
-```http
-GET /
-```
-
-Returns a simple API status response.
-
----
-
-# Dependencies
-
-The API depends on the following infrastructure services:
-
-## Ollama
-
-Purpose
-
-* Local LLM inference
-* Embedding generation
-
-Default Endpoint
+Expected result
 
 ```text
-http://127.0.0.1:11434
+CyberByDan AI is HEALTHY
 ```
 
 ---
 
-## ChromaDB
+# Management
 
-Purpose
+Daily management is performed using:
 
-* Vector database
-* Document retrieval
-* RAG context storage
-
-Default Endpoint
-
-```text
-http://127.0.0.1:8000
-```
+* ai-start.ps1
+* ai-stop.ps1
+* ai-restart.ps1
+* ai-status.ps1
+* ai-health.ps1
+* ai-update.ps1
 
 ---
 
-# Startup Process
+# Deployment Complete
 
-Windows Boot
+A successful deployment provides:
 
-↓
-
-Podman Machine
-
-↓
-
-AI Infrastructure (ChromaDB)
-
-↓
-
-CyberByDanAI Windows Service
-
-↓
-
-API Ready
-
-The API assumes that required infrastructure services are available before processing requests.
-
----
-
-# Logging
-
-Standard Output
-
-```text
-C:\homelab\logs\api.log
-```
-
-Standard Error
-
-```text
-C:\homelab\logs\api-error.log
-```
-
-Logs are managed automatically by NSSM.
-
----
-
-# Management Scripts
-
-The API lifecycle is managed using the PowerShell toolkit.
-
-Available commands:
-
-```text
-ai-start.ps1
-ai-stop.ps1
-ai-restart.ps1
-ai-status.ps1
-ai-health.ps1
-ai-update.ps1
-```
-
-These scripts should be used instead of manually launching Uvicorn.
-
----
-
-# Configuration
-
-Primary configuration values are maintained within the project configuration files and shared PowerShell library.
-
-Examples include:
-
-* API Port
-* Ollama Endpoint
-* ChromaDB Endpoint
-* Model Configuration
-* Logging Locations
-
----
-
-# Design Principles
-
-* OpenAI API compatibility
-* Stateless HTTP interface
+* OpenAI-compatible API
 * Persistent Windows Service
-* Separation of API and infrastructure
-* Retrieval-Augmented Generation support
-* Local-first architecture
-* Automation-friendly design
-
----
-
-# Current Status
-
-Current deployment includes:
-
-* Windows Service hosting
-* Automatic startup
-* OpenAI-compatible REST API
 * Ollama integration
-* ChromaDB integration
-* Health monitoring
-* Persistent logging
-* Automatic recovery after system reboot
-
-This API serves as the primary interface for all current and future CyberByDan AI applications.
+* ChromaDB retrieval
+* Automatic recovery after reboot
+* Production-ready local AI platform

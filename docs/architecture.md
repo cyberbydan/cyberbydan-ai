@@ -67,6 +67,13 @@ Runs as
 * Managed by NSSM
 * Automatic startup
 
+Monitoring
+
+* Managed through the CyberByDan AI PowerShell Toolkit
+* Health verification via ai-health.ps1
+* Status reporting via ai-status.ps1
+* Centralized logs in C:\homelab\logs
+
 ---
 
 ## Ollama
@@ -346,10 +353,20 @@ Planned
 
 # Operational Status
 
-The CyberByDan AI Platform is now capable of:
+The CyberByDan AI Platform currently provides:
 
-* Surviving Windows reboot
-* Automatically restoring infrastructure
-* Automatically restoring AI services
-* Serving OpenAI-compatible requests without manual intervention
-* Providing a stable foundation for future AI capabilities
+* Automatic startup after Windows reboot
+* Persistent Windows service hosting via NSSM
+* Podman-managed ChromaDB deployment
+* OpenAI-compatible API
+* Retrieval-Augmented Generation (RAG)
+* Local DeepSeek reasoning
+* Ollama model hosting
+* Unified AI management toolkit
+* Health monitoring and diagnostics
+* Structured application logging
+* Production-ready local AI foundation
+
+Current platform maturity:
+
+Production-ready core platform with ongoing feature development.

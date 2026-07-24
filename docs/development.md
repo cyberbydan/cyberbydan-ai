@@ -518,6 +518,47 @@ Multi-user authentication
 Plugin architecture
 
 ---
+---
+
+# Development Workflow
+
+Every engineering task follows the same lifecycle.
+
+```
+Plan
+
+↓
+
+Implement
+
+↓
+
+Test
+
+↓
+
+Debug
+
+↓
+
+Document
+
+↓
+
+Update State Inventory
+
+↓
+
+Commit
+
+↓
+
+Push
+```
+
+A feature is not considered complete until all of these stages have been completed.
+
+This workflow keeps the implementation, documentation, and retrieval knowledge synchronized.
 
 # Engineering Rule
 
